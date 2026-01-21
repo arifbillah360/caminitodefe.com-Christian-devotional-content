@@ -398,7 +398,182 @@ function validateForm(form) {
 }
 
 // ===================================
-// 17. ERROR HANDLING
+// 17. FAQ ACCORDION FUNCTIONALITY
+// ===================================
+
+// Toggle FAQ items
+const faqQuestions = document.querySelectorAll('.faq-question');
+
+faqQuestions.forEach(button => {
+    button.addEventListener('click', () => {
+        const faqItem = button.parentElement;
+        const isOpen = faqItem.classList.contains('active');
+
+        // Close all other FAQs
+        document.querySelectorAll('.faq-item').forEach(item => {
+            if (item !== faqItem) {
+                item.classList.remove('active');
+            }
+        });
+
+        // Toggle current FAQ
+        if (!isOpen) {
+            faqItem.classList.add('active');
+        } else {
+            faqItem.classList.remove('active');
+        }
+    });
+
+    // Keyboard accessibility for FAQ
+    button.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            button.click();
+        }
+    });
+});
+
+// ===================================
+// 18. ENHANCED SCROLL ANIMATIONS FOR NEW SECTIONS
+// ===================================
+
+function addRevealAnimationsToNewSections() {
+    // Add reveal class to new section elements
+    const newElementsToAnimate = [
+        '.step-item',
+        '.audience-card',
+        '.testimonial-card',
+        '.stat-item'
+    ];
+
+    newElementsToAnimate.forEach(selector => {
+        const elements = document.querySelectorAll(selector);
+        elements.forEach((element, index) => {
+            element.classList.add('reveal');
+            // Add staggered delay
+            element.style.transitionDelay = `${index * 0.15}s`;
+        });
+    });
+
+    // Observe new elements
+    const newRevealElements = document.querySelectorAll('.reveal');
+    newRevealElements.forEach(element => {
+        if (!element.dataset.observed) {
+            observer.observe(element);
+            element.dataset.observed = 'true';
+        }
+    });
+}
+
+// Call on page load
+window.addEventListener('load', () => {
+    addRevealAnimationsToNewSections();
+});
+
+// ===================================
+// 19. STATS COUNTER ANIMATION
+// ===================================
+
+// Animate numbers in social proof stats
+function animateStats() {
+    const stats = document.querySelectorAll('.stat-number');
+
+    const observerOptions = {
+        root: null,
+        rootMargin: '0px',
+        threshold: 0.5
+    };
+
+    const statsObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting && !entry.target.dataset.animated) {
+                const target = entry.target;
+                const text = target.textContent;
+
+                // Only animate if it contains a number
+                if (text.match(/\d/)) {
+                    target.dataset.animated = 'true';
+
+                    // Simple fade in animation
+                    target.style.opacity = '0';
+                    setTimeout(() => {
+                        target.style.transition = 'opacity 0.5s ease';
+                        target.style.opacity = '1';
+                    }, 100);
+                }
+            }
+        });
+    }, observerOptions);
+
+    stats.forEach(stat => {
+        statsObserver.observe(stat);
+    });
+}
+
+// Call stats animation
+animateStats();
+
+// ===================================
+// 20. CTA BUTTON ENHANCED TRACKING
+// ===================================
+
+// Track all CTA interactions for conversion optimization
+const allCtaButtons = document.querySelectorAll('a[href="#cta"], .btn-cta-final');
+
+allCtaButtons.forEach((button, index) => {
+    button.addEventListener('click', (e) => {
+        const buttonLocation = button.closest('section')?.id || 'header';
+        const buttonText = button.textContent.trim();
+
+        console.log('CTA Clicked:', {
+            location: buttonLocation,
+            text: buttonText,
+            index: index
+        });
+
+        // Add visual feedback
+        button.style.transform = 'scale(0.95)';
+        setTimeout(() => {
+            button.style.transform = '';
+        }, 150);
+
+        // Example: Google Analytics event (uncomment when ready)
+        // gtag('event', 'cta_click', {
+        //     'event_category': 'conversion',
+        //     'event_label': buttonLocation,
+        //     'value': 1
+        // });
+    });
+});
+
+// ===================================
+// 21. SMOOTH SCROLL ENHANCEMENT FOR FOOTER LINKS
+// ===================================
+
+// Ensure footer links also smooth scroll
+const footerLinks = document.querySelectorAll('.footer-links a[href^="#"]');
+
+footerLinks.forEach(link => {
+    link.addEventListener('click', function(e) {
+        const href = this.getAttribute('href');
+        const target = document.querySelector(href);
+
+        if (target) {
+            e.preventDefault();
+
+            const headerHeight = header.offsetHeight;
+            const targetPosition = target.getBoundingClientRect().top + window.pageYOffset - headerHeight;
+
+            window.scrollTo({
+                top: targetPosition,
+                behavior: 'smooth'
+            });
+        }
+    });
+});
+
+// ===================================
+// 22. ERROR HANDLING
 // ===================================
 
 // Global error handler
